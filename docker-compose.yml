@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+
+  rabbitmq:
+    image: rabbitmq:management-alpine
+    container_name: demo-rabbitmq
+    environment:
+       RABBITMQ_DEFAULT_PASS: rabbitpass
+       RABBITMQ_DEFAULT_USER: rabbituser
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    
+  db:
+    image: postgres:alpine
+    container_name: demo-db
+    environment:
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpass      
+      POSTGRES_DB: demo
+
+    ports:
+      - '5432:5432'

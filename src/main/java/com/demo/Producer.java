@@ -4,7 +4,6 @@
 package com.demo;
 
 import org.springframework.amqp.AmqpException;
-import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -29,16 +28,13 @@ public class Producer {
 	@Autowired
 	RabbitTemplate rabbitTemplate;
 
-	@Autowired
-	private Queue queue;
-
 	int idNew = 1;
 
 	int idUpdate = 1;
 
 	Item item;
 
-	@Scheduled(initialDelay = 1000, fixedRate = 60000)
+	@Scheduled(initialDelay = 1000, fixedRate = 160000)
 	public void publishI() throws AmqpException, JsonProcessingException, InterruptedException {
 
 		publishNewItem();
@@ -64,7 +60,8 @@ public class Producer {
 
 		System.out.println("Producing update of item " + item);
 
-		rabbitTemplate.convertAndSend("notification", objectMapper.writeValueAsString(item));
+		rabbitTemplate.convertAndSend("notification-exchange", "notificationRoutingKey",
+				objectMapper.writeValueAsString(item));
 
 		idUpdate++;
 	}
@@ -74,7 +71,8 @@ public class Producer {
 
 		System.out.println("Producing new item " + item);
 
-		rabbitTemplate.convertAndSend(queue.getName(), objectMapper.writeValueAsString(item));
+		rabbitTemplate.convertAndSend("notification-exchange", "notificationRoutingKey",
+				objectMapper.writeValueAsString(item));
 
 		idNew++;
 	}

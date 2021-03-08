@@ -19,6 +19,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  *
  * @author Rafael Reyes Lopez
@@ -28,6 +30,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  */
 @RabbitListener(queues = "notification")
 @Component
+@Slf4j
 public class ItemConsumer {
 
 	@Autowired
@@ -39,11 +42,11 @@ public class ItemConsumer {
 	@RabbitHandler
 	public void onMessage(@Payload final String json) throws JsonMappingException, JsonProcessingException {
 
-		System.out.println("Consuming " + json);
+		log.info("Consuming " + json);
 		final Item item = objectMapper.readValue(json, Item.class);
 
 		if (item.getType().equals("new")) {
-			System.out.println("Is a new Item " + json);
+			log.info("Is a new Item " + json);
 			itemRepository.save(item);
 
 		} else {
@@ -52,7 +55,7 @@ public class ItemConsumer {
 
 			if (itemToBeUpdated.isPresent() && item.getType().equals("update")) {
 
-				System.out.println("Item found for updating :) " + json);
+				log.info("Item found for updating :) " + json);
 				final Item itemToUpdate = itemToBeUpdated.get();
 
 				itemToUpdate.setType(item.getType());
@@ -60,7 +63,7 @@ public class ItemConsumer {
 				itemRepository.save(itemToUpdate);
 
 			} else {
-				System.err.println("Item not found! :( " + json);
+				log.error("Item not found! :( " + json);
 				throw new NoSuchElementException("Element not found to be updated " + json);
 			}
 

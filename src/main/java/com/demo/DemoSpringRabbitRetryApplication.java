@@ -1,8 +1,3 @@
-/*
- * Copyright (C) IDB Mobile Technology S.L. - All Rights Reserved
- * Unauthorized copying of this file, via any medium is strictly prohibited
- * Proprietary and confidential
- */
 package com.demo;
 
 import javax.annotation.PostConstruct;
@@ -14,13 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
-@EnableScheduling
 public class DemoSpringRabbitRetryApplication {
 
 	@Autowired
@@ -45,7 +38,10 @@ public class DemoSpringRabbitRetryApplication {
 
 	@PostConstruct
 	public void init() throws AmqpException, JsonProcessingException, InterruptedException {
+
 		amqpAdmin.declareQueue(queue());
+
+		producer.publish();
 	}
 
 }

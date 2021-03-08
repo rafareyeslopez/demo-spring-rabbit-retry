@@ -1,17 +1,15 @@
-/**
- *
- */
 package com.demo;
 
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  *
@@ -21,6 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  *
  */
 @Component
+@Slf4j
 public class Producer {
 
 	@Autowired
@@ -38,8 +37,7 @@ public class Producer {
 
 	Item item;
 
-	@Scheduled(initialDelay = 1000, fixedRate = 60000)
-	public void publishI() throws AmqpException, JsonProcessingException, InterruptedException {
+	public void publish() throws AmqpException, JsonProcessingException, InterruptedException {
 
 		publishNewItem();
 
@@ -47,7 +45,7 @@ public class Producer {
 
 		publishItemUpdate();
 
-		Thread.sleep(1000);
+		Thread.sleep(5000);
 
 		publishItemUpdate();
 
@@ -62,7 +60,7 @@ public class Producer {
 	private void publishItemUpdate() throws JsonProcessingException {
 		item = new Item(Integer.toUnsignedLong(idUpdate), "update", "second value");
 
-		System.out.println("Producing update of item " + item);
+		log.info("Producing update of item " + item);
 
 		rabbitTemplate.convertAndSend("notification", objectMapper.writeValueAsString(item));
 
@@ -72,7 +70,7 @@ public class Producer {
 	private void publishNewItem() throws JsonProcessingException {
 		item = new Item(Integer.toUnsignedLong(idNew), "new", "first value");
 
-		System.out.println("Producing new item " + item);
+		log.info("Producing new item " + item);
 
 		rabbitTemplate.convertAndSend(queue.getName(), objectMapper.writeValueAsString(item));
 
